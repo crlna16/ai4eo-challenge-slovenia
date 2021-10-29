@@ -1,0 +1,120 @@
+name: kernel-edc-gpu
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # platform basic requirement
+  - ipykernel=5.3.4
+
+  # from jupyter/scipy-notebook
+  - 'beautifulsoup4=4.9.*'
+  - 'conda-forge::blas=*=openblas'
+  - 'bokeh=2.3.*'
+  - 'bottleneck=1.3.*'
+  - 'cloudpickle=1.6.*'
+  - 'cython=0.29.*'
+  - 'dask==2021.4.*'
+  - 'dill=0.3.*'
+  - 'h5py=3.1.*'
+  - 'ipywidgets=7.6.*'
+  # we don't install ipympl here because it would also need
+  # packages in the server env with additional dependencies
+  # and there doesn't seem to be sufficient reason for that
+  - 'matplotlib-base=3.4.*'
+  - 'numba=0.53.*'
+  - 'numexpr=2.7.*'
+  - 'pandas=1.2.*'
+  - 'patsy=0.5.*'
+  - 'protobuf=3.15.*'
+  - 'pytables=3.6.*'
+  - 'scikit-image=0.18.*'
+  - 'scikit-learn=0.24.*'
+  - 'scipy=1.6.*'
+  - 'seaborn=0.11.*'
+  - 'sqlalchemy=1.4.*'
+  - 'statsmodels=0.12.*'
+  - 'sympy=1.7.*'
+  - 'vincent=0.4.*'
+  - 'xlrd=1.2.*'
+  # widgetnbextensions belongs to the jupyter env, not the kernel
+
+  # edc platform
+  - pyyaml
+  - setuptools
+  - cmake
+  - cffi
+  - python-dotenv
+  - oauthlib
+  - requests-oauthlib
+  - gdal
+  - fiona
+  - rasterio
+  - shapely
+  - xarray
+  - zarr
+  - psycopg2
+  - geopandas
+  - geojson
+  - ipyleaflet
+  - cartopy
+  - tqdm
+  - lightgbm
+  - graphviz
+  - numba
+  - llvmlite
+  - descartes
+  - nbdime
+  - papermill
+  - s3fs
+  - netcdf4
+  - scrapbook
+  - pip
+  - rioxarray  # useful for notebook jobs
+
+  - xcube==0.8.1
+  - xcube-sh==0.8.0
+  - xcube_geodb==0.1.16
+  - xcube-cci==0.8.0
+  - xcube-cds==0.8.0
+  - nc-time-axis
+
+  # rhea group
+  - addict
+  - yapf
+  - lxml
+
+  # gpu libs
+  # pytorch dependencies (according to iot-salzburg/gpu-jupyter)
+  - pyyaml
+  - mkl
+  - mkl-include
+  - setuptools
+  - cmake
+  - cffi
+  - typing
+
+  # tensorflow doesn't support python 3.9 yet
+  # https://github.com/tensorflow/tensorflow/issues/44485
+  - python<3.9
+
+  # NOTE: there can only be 1 pip block in a conda env
+  - pip:
+    # edc
+    - git+https://github.com/eurodatacube/papermill-kubernetes-job-progess@1d0490d7df0d9e987a6baec4fa5e7d3cf3c3df63
+
+    # NOTE: it's probably ok to update these further in the future
+    - eo-learn==0.9.1  # available on conda, but not latest version
+    - sentinelhub==3.2.1  # available on conda, but not latest version
+    - s2cloudless==1.5.0  # available on conda, but not latest version
+
+    # rhea group
+    - wget
+
+    # gpu
+    # install via pip because according to iot-salzburg/gpu-jupyter conda install leads to errors
+    - tensorflow==2.4.1
+    - keras
+    - torch
+    - torchvision
+    - torchaudio
+    - torchviz

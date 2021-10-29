@@ -280,6 +280,7 @@ class PredictPatchTask(EOTask):
         # TODO repeat the preprocessing from EODataset
         band_names = ['B01','B02','B03','B04','B05','B06','B07','B08','B8A','B09','B11','B12']
         tidx = list(range((self.args.n_time_frames+1)//2)) + list(range(-1*(self.args.n_time_frames//2), 0))
+        #tidx = list(range(self.args.n_time_frames))
         print(f'selecting the first N//2 and the last N//2 time stamps: {tidx}')
 
         print(self.args.indices)
@@ -289,13 +290,18 @@ class PredictPatchTask(EOTask):
             print(f'Time index {ix}')
             for band in self.args.bands:
                 band_ix = band_names.index(band)
-                xx = eopatch.data['BANDS'][ix][:, :, band_ix]
+                if len(eopatch.data['BANDS']) > ix:
+                    xx = eopatch.data['BANDS'][ix][:, :, band_ix]
+                else:
+                    xx = eopatch.data['BANDS'][0][:, :, band_ix]
                 x.append(xx.astype(np.float32))
             for index in self.args.indices:
-                xx = eopatch.data[index][ix]
+                if len(eopatch.data['BANDS']) > ix:
+                    xx = eopatch.data[index][ix]
+                else:
+                    xx = eopatch.data[index][0]
                 x.append(xx.astype(np.float32).squeeze())
                 print(f'Normalized index {index} attached')
-
         x = np.expand_dims(np.stack(x), axis=0)
         x = torch.tensor(x.astype(np.float32))
         print('Input shape: ', x.shape)

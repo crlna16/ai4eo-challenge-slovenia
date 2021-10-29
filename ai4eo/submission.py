@@ -184,7 +184,7 @@ if __name__=='__main__':
     parser.add_argument('--learning-rate', type=float, default=1e-3)
     parser.add_argument('--max-epochs', type=float, default=1e-3)
     parser.add_argument('--patience', type=int, default=6, help='early stopping patience, -1 for no early stopping')
-
+    parser.add_argument('--min-true-fraction', type=float, default=0, help='minimum fraction of positive pixels in target')
     args = parser.parse_args()
 
     print('\n*** begin args key / value ***')

@@ -139,3 +139,19 @@ echo "nnictl stop" >> singularity_run_nni.sh
 # execute the singularity container
 singularity exec --nv --bind /scratch/k/k202143/singularity/cache:/home/jovyan/.cache --bind /mnt/lustre02/work/ka1176/frauke/ai4eo-challenge/nni/:/opt/conda/envs/eurodatacube-gpu-/nni --bind /mnt/lustre02/work/ka1176/:/swork /work/ka1176/caroline/gitlab/ai4eo-challenge/ai4eo2_latest.sif bash $scriptdir_c/singularity_run_nni.sh
 ```
+
+## Run predictions within a Jupyter notebook
+
+This is required for the AI4EO challenge. Check the folder `final_submission` for the final notebook and the best model. 
+
+The following has been developed locally on Ubuntu 20.04 (WSL2 on Windows 10). 
+
+Build the final Docker image:
+
+`sudo docker build -f Dockerfile-final -t eagleeyes_final .`
+
+Run the Docker container:
+
+`sudo docker run -p 8888:8888 -v PATH_TO_TEST_DATA_ON_HOST:/test_data/ eagleeyes_final`
+
+You should then be able to open a Jupyter notebook at `127.0.0.1:8888` with the token provided. 

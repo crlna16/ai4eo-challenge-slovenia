@@ -1,0 +1,57 @@
+FROM eurodatacube/jupyter-user-base-g:8-devel
+
+ARG DOCKER_TAG
+
+ENV ENV_NAME=eurodatacube-gpu-${DOCKER_TAG}
+
+# install environment
+ADD kernel-edc-gpu-environment.yaml .
+RUN pip config set global.cache-dir false && \
+    conda config --system --set channel_priority flexible && \
+    conda env create --file kernel-edc-gpu-environment.yaml -n "${ENV_NAME}" && \
+    conda config --system --set channel_priority strict && \
+    conda clean --all -f -y && \
+    pip config set global.cache-dir true && \
+    rm kernel-edc-gpu-environment.yaml && \
+    fix-permissions /home/$NB_USER
+
+USER root
+# Activate environment by default in interactive shells
+RUN echo "source activate $ENV_NAME" >> /etc/bash.bashrc
+
+# install kernel
+RUN conda run -n "${ENV_NAME}" python -m ipykernel install --name "EDC-GPU" --display-name "EDC-GPU ${DOCKER_TAG} (Python3)"
+
+# we need to patch the kernel.json to set up PATH :(
+# by default, the kernel bin dir is not included in PATH
+# when the kernel executes a notebook, but we need it for sentinelhub.config
+# https://github.com/jupyter/notebook/issues/4527
+# https://github.com/ipython/ipykernel/issues/395
+# since we already have that, also adding version to the metadata for edc-jlab
+# since we already have that, also adding ~/.local/bin
+RUN python3 -c "\
+import os; \
+import json; \
+env_name = os.environ['ENV_NAME']; \
+new_path = f'/opt/conda/envs/{env_name}/bin:/home/jovyan/.local/bin:/opt/conda/condabin:/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'; \
+kernel_json = f'/usr/local/share/jupyter/kernels/edc-gpu/kernel.json'; \
+update = {'env': {'PATH': new_path}, 'metadata': {'version': '${DOCKER_TAG}'}}; \
+json.dump({**json.load(open(kernel_json)), **update}, open(kernel_json, 'w'), indent=4)"
+
+ADD jupyter-user/edc.py .
+RUN mv edc.py /opt/conda/envs/"${ENV_NAME}"/lib/python*/site-packages
+USER $NB_UID
+
+# Add the final notebook
+# Add the best model
+# Make the container automatically exectute the best notebook
+# Commands:
+COPY ./final_submission/best_model.pt .
+COPY ./final_submission/final_submission.ipynb .
+COPY ./final_submission/ai4eo.png .
+COPY ./ai4eo/preprocessing.py ./ai4eo/preprocessing.py
+COPY ./ai4eo/srresnet_ai4eo.py ./ai4eo/srresnet_ai4eo.py
+COPY ./ai4eo/submission.py ./ai4eo/submission.py
+COPY ./ai4eo/utils.py ./ai4eo/utils.py
+COPY ./ai4eo/eotasks.py ./ai4eo/eotasks.py
+COPY ./ai4eo/create_submission.sh ./ai4eo/create_submission.sh

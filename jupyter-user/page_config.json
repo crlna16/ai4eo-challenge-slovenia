@@ -1,0 +1,7 @@
+{
+    "disabledExtensions": {
+        "@jupyterlab/filebrowser-extension:download": true,
+        "@jupyterlab/filebrowser-extension:share-file": true
+    }
+}
+
